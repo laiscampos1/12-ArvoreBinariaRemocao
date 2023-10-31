@@ -83,7 +83,7 @@ void menu()
 void inicializar()
 {
 
-	// provis髍io porque n鉶 libera a memoria usada pela arvore
+	// provis贸rio porque n茫o libera a memoria usada pela arvore
 	raiz = NULL;
 
 	cout << "Arvore inicializada \n";
@@ -236,48 +236,71 @@ NO* buscarElementoArvoreComPai(NO* no, int valor, NO*& pai)
 	return NULL;
 }
 
-
-
 void removerElementoArvore(NO* no, int valor) {
-	NO* pai = NULL;
-	NO* atual = buscarElementoArvoreComPai(no, valor, pai);
-	if (atual == NULL) {
-		cout << "Elemento nao encontrado \n";
-		return;
-	}
+    NO* pai = NULL;
+    NO* atual = buscarElementoArvoreComPai(no, valor, pai);
+    if (atual == NULL) {
+        cout << "Elemento nao encontrado \n";
+        return;
+    }
 
+    // caso 1: sem filhos
+    if (atual->esq == NULL && atual->dir == NULL) {
+        if (pai == NULL) {
+            // O elemento a ser removido 茅 a raiz da 谩rvore.
+            raiz = NULL;
+        } else {
+            // Remove o elemento (atual) do pai
+            if (pai->esq == atual) {
+                pai->esq = NULL;
+            } else {
+                pai->dir = NULL;
+            }
+            free(atual); // Libera a mem贸ria do n贸 removido
+        }
+    }
 
-	// caso 1: sem filhos	
-	
+    // caso 2: um filho
+    else if (atual->esq == NULL || atual->dir == NULL) {
+        NO* filho = (atual->esq != NULL) ? atual->esq : atual->dir;
 
-	// caso 2: um filho	
-	
+        if (pai == NULL) {
+            // O elemento a ser removido 茅 a raiz da 谩rvore.
+            raiz = filho;
+        } else {
+            // Atualiza o pai para apontar para o filho
+            if (pai->esq == atual) {
+                pai->esq = filho;
+            } else {
+                pai->dir = filho;
+            }
+            free(atual); // Libera a mem贸ria do n贸 removido
+        }
+    }
 
-	// caso 3: dois filhos
+    // caso 3: dois filhos
+    else {
+        NO* sucessor = atual->dir;
+        NO* paiSucessor = atual;
 
-	// procura o elmento mais a esquerda da sub-arvore da direita
-	NO* sucessor = atual->dir;
-	NO* paiSucessor = atual;
-	while (sucessor->esq != NULL) {
-		paiSucessor = sucessor;
-		sucessor = sucessor->esq;
-	}
+        // Encontra o n贸 mais 脿 esquerda da sub-谩rvore direita (sucessor)
+        while (sucessor->esq != NULL) {
+            paiSucessor = sucessor;
+            sucessor = sucessor->esq;
+        }
 
-	// copia o valor do sucessor para o no atual
-	atual->valor = sucessor->valor;
+        // Copia o valor do sucessor para o n贸 atual
+        atual->valor = sucessor->valor;
 
-	// se existir uma sub-arvore a direita do sucessor , entao
-	// ela deve ser ligada ao pai do sucessor
-	if (sucessor->dir != NULL)
-	{
-		paiSucessor->esq = sucessor->dir;
-	}
-	else {
-		paiSucessor->esq = NULL;
-	}
+        // Se o sucessor tem um filho 脿 direita, o liga ao pai do sucessor
+        if (sucessor->dir != NULL) {
+            paiSucessor->esq = sucessor->dir;
+        } else {
+            paiSucessor->esq = NULL;
+        }
 
-	//libera memoria
-	free(sucessor);
+        free(sucessor); 
+}
 
 
 }
